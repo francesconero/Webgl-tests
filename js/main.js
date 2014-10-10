@@ -4,7 +4,7 @@ var fps = 60, timeSince=17, lastTime=Date.now();
 
 function initGL(canvas) {
     try {
-        gl = WebGLUtils.setupWebGL(canvas);
+        gl = WebGLUtils.setupWebGL(canvas, {antialias:false});
     } catch (e) {
     }
     if (!gl) {
@@ -31,11 +31,14 @@ function initShaders() {
 
 
     shaderProgram.mousePosition = gl.getUniformLocation(shaderProgram, "mouseP");
+    shaderProgram.mouseVelocity = gl.getUniformLocation(shaderProgram, "mouseV");
 }
 
 var mouseDown = false;
 var lastMouseX = null;
 var lastMouseY = null;
+var mouseSpeedX = null;
+var mouseSpeedY = null;
 
 function handleMouseDown(event) {
     mouseDown = true;
@@ -53,8 +56,8 @@ function handleMouseMove(event) {
     var newX = event.clientX;
     var newY = event.clientY;
 
-    var deltaX = newX - lastMouseX
-    var deltaY = newY - lastMouseY;
+    mouseSpeedX += 0.01*(newX - lastMouseX - mouseSpeedX);
+    mouseSpeedY += 0.01*(newY - lastMouseY - mouseSpeedY);
 
     lastMouseX = newX
     lastMouseY = newY;
@@ -83,10 +86,12 @@ function drawScene() {
     positionLocation = gl.getAttribLocation(shaderProgram, "a_position");
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-    if(lastMouseX==null || lastMouseY==null){
+    if(mouseSpeedX==null || mouseSpeedY==null){
         gl.uniform2f(shaderProgram.mousePosition, 0.0, 0.0);
+        gl.uniform2f(shaderProgram.mouseVelocity, 0.0, 0.0);
     } else {
         gl.uniform2f(shaderProgram.mousePosition, lastMouseX, canvas.height-lastMouseY);
+        gl.uniform2f(shaderProgram.mouseVelocity, mouseSpeedX, -mouseSpeedY);
     }
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 }
@@ -99,6 +104,8 @@ function tick() {
         fps += ((1000/timeSince)-fps)*0.02;
     }
         lastTime = currentTime;
+    mouseSpeedX *= 0.95;
+    mouseSpeedY *= 0.95;
     requestAnimFrame(tick);
     resizeCanvas();
     drawScene();
@@ -128,7 +135,6 @@ function webGLStart() {
     initGL(canvas);
     initShaders();
     initBuffers();
-
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
 
@@ -136,6 +142,8 @@ function webGLStart() {
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
     canvas.ontouchstart = function(e) {
+        mouseSpeedX += 0.01*(e.touches[0].pageX - lastMouseX - mouseSpeedX);
+        mouseSpeedY += 0.01*(e.touches[0].pageY - lastMouseY - mouseSpeedY);
         lastMouseX = e.touches[0].pageX
         lastMouseY = e.touches[0].pageY
         if (e && e.preventDefault) { e.preventDefault(); }
@@ -144,6 +152,8 @@ function webGLStart() {
     };
 
     canvas.ontouchmove = function(e) {
+        mouseSpeedX += 0.01*(e.touches[0].pageX - lastMouseX - mouseSpeedX);
+        mouseSpeedY += 0.01*(e.touches[0].pageY - lastMouseY - mouseSpeedY);
         lastMouseX = e.touches[0].pageX
         lastMouseY = e.touches[0].pageY
         if (e && e.preventDefault) { e.preventDefault(); }
