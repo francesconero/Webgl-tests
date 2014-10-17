@@ -197,10 +197,22 @@ WebGLUtils = function () {
         return shaders;
     };
 
+    var checkFloatTextures = function(gl){
+        try { ext = gl.getExtension("OES_texture_float");
+        } catch(e) {}
+        if ( !ext ) {
+            alert("Your browser does not support OES_texture_float extension");
+
+            return false;
+        }
+        return true;
+    };
+
     return {
         create3DContext: create3DContext,
         setupWebGL: setupWebGL,
-        loadShaders: loadShaders
+        loadShaders: loadShaders,
+        checkFloatTextures: checkFloatTextures
     };
 }();
 
