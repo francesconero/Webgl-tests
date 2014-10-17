@@ -259,13 +259,10 @@ var Renderer = (function() {
         startTime = Date.now();
         canvas = _canvas;
         gl = WebGLUtils.setupWebGL(canvas, {antialias: false});
-        if(WebGLUtils.checkFloatTextures(gl))
-        {
-            initBuffers();
-            initShaders(fragmentShader);
-            initScene();
-            createFBOs();
-        }
+        initBuffers();
+        initShaders(fragmentShader);
+        initScene();
+        createFBOs();
     };
 
     return {
