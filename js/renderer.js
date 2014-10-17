@@ -183,8 +183,10 @@ var Renderer = (function() {
     }
 
     function createFBOs() {
-        blockCountX = Math.floor(canvas.width/1.0);
-        blockCountY = Math.floor(canvas.height/1.0);
+        blockCountX = 2048;
+        blockCountY = 2048;
+//        blockCountX = Math.floor(canvas.width/10.0);
+//        blockCountY = Math.floor(canvas.height/10.0);
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
         gl.enableVertexAttribArray(shaderProgramCompute.positionLocation);
         gl.vertexAttribPointer(shaderProgramCompute.positionLocation, 2, gl.FLOAT, false, 0, 0);
